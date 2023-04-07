@@ -237,7 +237,20 @@ def make_seasons_table(data, cur, conn):
         cur.execute("INSERT OR IGNORE INTO seasons (id, winner_id, end_year) VALUES (?,?,?)",(s[i][0], s[i][1], s[i][2]))
     conn.commit()
 
+def winners_since_search(year, cur, conn):
+    cur.execute("""
+        SELECT Seasons.end_year, Winners.name FROM Seasons
+        JOIN Winners ON Seasons.winner_id = Winners.id
+        WHERE Seasons.end_year >= ?
+    """, (year,))
 
+    res = {}
+    data = cur.fetchall()
+
+    for val in data:
+        res[val[1]] = res.get(val[1], 0) + 1
+    conn.commit()
+    return res
 
 class TestAllMethods(unittest.TestCase):
     def setUp(self):
